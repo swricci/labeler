@@ -7,6 +7,7 @@ import os
 import warnings
 import time
 import glob
+import shutil
 
 # Suppress RuntimeWarnings
 warnings.filterwarnings('ignore', category=RuntimeWarning)
@@ -15,8 +16,39 @@ warnings.filterwarnings('ignore', category=RuntimeWarning)
 current_mode = 'label'  # can be 'add' or 'label'
 selected_detection = None
 new_detections = []
-selection_threshold = 500  # Threshold distance for selecting a detection
+selection_threshold = 500000   # Threshold distance for selecting a detection
 press_x, press_y = None, None  # Global variables for mouse press coordinates
+def backup_files(keep_last_n=5):
+    global database
+    # Create a backups directory if it doesn't exist
+    backup_dir = os.path.join(os.getcwd(), 'backups')
+    if not os.path.exists(backup_dir):
+        os.makedirs(backup_dir)
+    
+    # Get current timestamp
+    timestamp = time.strftime('%Y%m%d_%H%M%S')
+
+    # Backup database/*.csv file
+    db_file = os.path.join(os.getcwd(), database)
+    db_backup_name = f'database_{timestamp}.csv'
+    db_backup_path = os.path.join(backup_dir, db_backup_name)
+    shutil.copy(db_file, db_backup_path)
+    
+    # Backup processed.csv file
+    processed_file = os.path.join(os.getcwd(), 'processed.csv')
+    processed_backup_name = f'processed_{timestamp}.csv'
+    processed_backup_path = os.path.join(backup_dir, processed_backup_name)
+    shutil.copy(processed_file, processed_backup_path)
+
+    print("Files backed up successfully.")
+        # Get a list of all backup files
+    all_backups = sorted(os.listdir(backup_dir), key=lambda x: os.path.getmtime(os.path.join(backup_dir, x)))
+    
+    # Keep only the last 'keep_last_n' backups
+    if len(all_backups) > keep_last_n:
+        backups_to_remove = all_backups[:-keep_last_n]
+        for backup in backups_to_remove:
+            os.remove(os.path.join(backup_dir, backup))
 
 def clear_console():
     # Clear the console. Works on Windows (os.system('cls')) and Unix (os.system('clear'))
@@ -66,6 +98,7 @@ def onkey(event, df, image_name, src, fig, ax):
 
     # Handle exit first, regardless of other conditions
     if event.key == 'e':
+        backup_files()
         print("Exiting the program.")
         plt.close(fig)  # Close the plot window
         plt.close('all')  # Close all other plot windows
