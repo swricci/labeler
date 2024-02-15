@@ -53,8 +53,8 @@ GUI key options:
 
 - `a`: new detection addition mode
 - `l`: labeling mode
-- - `m`: misclassified
-- - `b`: bad classification
+  - `m`: misclassified
+  - `b`: bad classification
 - `r`: refresh
 - `e`: exit
 
