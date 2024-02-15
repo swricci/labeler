@@ -49,14 +49,23 @@ Execute the script:
 python lets_go.py
 ```
 
-GUI key options:
+### Key Options
 
-- `a`: new detection addition mode
-- `l`: labeling mode
-  - `m`: misclassified
-  - `b`: bad classification
-- `r`: refresh
-- `e`: exit
+The following table outlines the key options available in the GUI:
+
+| Key | Function                    | Description                                       |
+| --- | --------------------------- | ------------------------------------------------- |
+| `a` | New Detection Addition Mode | Enter the mode to add new detections.             |
+| `l` | Labeling Mode               | Switch to labeling mode.                          |
+|     | - `m`                       | Label as misclassified.                           |
+|     | - `b`                       | Label as bad classification.                      |
+| `r` | Refresh                     | Refresh the current view or state.                |
+| `e` | Exit                        | Exit the application or close the current window. |
+
+### Note
+
+- To enter a sub-mode in labeling mode, first press `l` then `m` or `b`.
+- Press `r` to refresh if the screen appears frozen or does not update.
 
 ## Contributing
 
