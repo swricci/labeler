@@ -145,7 +145,7 @@ boats_df = df[df['class'] != 'none']
 df['verification'] = None
 
 # Assuming your TIFF files are in the same directory
-tif_files = glob.glob('database/**/*.tif',recursive=True)
+tif_files = glob.glob('C:\\phd\\fknms\\data\\wdr/**/*.tif',recursive=True)
 
 for i, image_path in enumerate(tif_files):
     clear_console()  # Clear the console
@@ -186,6 +186,11 @@ for i, image_path in enumerate(tif_files):
                 ax.plot(row['x'], row['y'], marker, markersize=15, markeredgewidth=1.5, fillstyle='none')
         
         bcounts = df[df["chipName"].str.startswith(image)]['class'].value_counts()
+        # If 'boats' or 'boat_wake' are not present in the picture, assign their count as 0
+        if 'boat' not in bcounts:
+            bcounts['boat'] = 0
+        if 'boat_wake' not in bcounts:
+            bcounts['boat_wake'] = 0
         # Add text on the right side of the plot within the figure
         info_text = (f'Boats: {bcounts["boat"]}\n'
                      f'Wakes: {bcounts["boat_wake"]}\n\n')
