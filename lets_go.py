@@ -57,11 +57,21 @@ def onrelease(event, src, df, fig, ax):
                     closest_detection = index
             if closest_detection is not None:
                 selected_detection = closest_detection
+                plt.title(f'{image} - {closest_detection}', fontsize=10)
+                ax.set_xlabel(f'{current_mode} mode. Labeling index: {closest_detection}')
                 print(f"Selected detection at index: {closest_detection}")
-
 # Function to handle key press events
 def onkey(event, df, image_name, src, fig, ax):
     global current_mode, selected_detection
+
+    # Handle exit first, regardless of other conditions
+    if event.key == 'e':
+        print("Exiting the program.")
+        plt.close(fig)  # Close the plot window
+        plt.close('all')  # Close all other plot windows
+        raise SystemExit  # Exit the program
+
+    # Then handle other keys based on modes
     if event.key == 'a':
         if current_mode != 'add':  # Only redraw if mode changes
             current_mode = 'add'
@@ -70,6 +80,7 @@ def onkey(event, df, image_name, src, fig, ax):
             ax.set_xticks([])
             ax.set_yticks([])
             ax.set_xlabel(f'{current_mode} mode')
+            plt.title(f'{image_name}', fontsize=10)
     elif event.key == 'l':
         if current_mode != 'label':  # Only redraw if mode changes
             current_mode = 'label'
@@ -78,22 +89,19 @@ def onkey(event, df, image_name, src, fig, ax):
             ax.set_xticks([])
             ax.set_yticks([])
             ax.set_xlabel(f'{current_mode} mode')
+            plt.title(f'{image_name}', fontsize=10)
     elif event.key == 'r':
         print("Resetting the image with different colors for labeled detections.")
         draw_plot(image_name, df, src, fig, ax, reset=True)
         ax.set_xticks([])
         ax.set_yticks([])
         ax.set_xlabel(f'{current_mode} mode')
+        plt.title(f'{image_name}', fontsize=10)
     elif current_mode == 'label' and selected_detection is not None:
         if event.key in ['m', 'b']:
             status = 'misclassified' if event.key == 'm' else 'bad'
             df.at[selected_detection, 'verification'] = status
             print(f"Labeled detection {selected_detection} as {status}")
-    elif event.key == 'e':
-        print("Exiting the program.")
-        plt.close(fig)  # Close the plot window
-        plt.close('all')  # Close all other plot windows
-        raise SystemExit  # Exit the program
 
 # Function to draw the plot
 def draw_plot(image_name, df, src, fig, ax, reset=False):
