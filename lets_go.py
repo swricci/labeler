@@ -126,7 +126,7 @@ def draw_plot(image_name, df, src, fig, ax, reset=False):
     
     plt.draw()  # Redraw the plot
 
-database = 'wdr_2019_DetectionTable.csv'
+database = 'database/wdr_2019_DetectionTable.csv'
 # Load the CSV file
 df = pd.read_csv(database)
 
@@ -145,7 +145,7 @@ boats_df = df[df['class'] != 'none']
 df['verification'] = None
 
 # Assuming your TIFF files are in the same directory
-tif_files = glob.glob('**/*.tif',recursive=True)
+tif_files = glob.glob('database/**/*.tif',recursive=True)
 
 for i, image_path in enumerate(tif_files):
     clear_console()  # Clear the console

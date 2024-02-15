@@ -1,6 +1,9 @@
-# TIF Processor lets_go
+# TIF Processor lets go
 
 Simple labeler and new detection adder to tiff files.
+
+![ ](images/example_1.png "Let's Go screenshot")
+![ ](images/example_2.png "Let's Go screenshot")
 
 ## Table of Contents
 
