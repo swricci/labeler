@@ -26,19 +26,25 @@ This project requires a conda environment to run. To set up the environment, fol
 
 1. Install [Anaconda](https://www.anaconda.com/products/individual) or [Miniconda](https://docs.conda.io/en/latest/miniconda.html) if you haven't already.
 
-2. Create a new conda environment using the provided `environment.yml` file:
+2. If you have `conda` installed, make sure to update it:
+
+```bash
+conda update conda
+```
+
+3. Create a new conda environment using the provided `environment.yml` file:
 
 ```bash
     conda env create -n labeler_env python=3.12
 ```
 
-3. Activate the environment:
+4. Activate the environment:
 
 ```bash
     conda activate labeler_env
 ```
 
-4. Install dependencies:
+5. Install dependencies:
 
 ```bash
     pip install -r requirements.txt
