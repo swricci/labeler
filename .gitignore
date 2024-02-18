@@ -1,2 +1,6 @@
 # backup folder
 backups
+
+# user-specific files
+processed.csv
+input.toml

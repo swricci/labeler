@@ -52,7 +52,16 @@ conda update conda
 
 ## Usage
 
-Execute the script:
+1. Create a `input.toml` file to specify your database and tif path. An example is shown in `input.toml.example`. You can copy paste it and change the name to `input.toml` and add your specific paths.
+
+```toml
+# user paths
+tiff_directory = "your/database/path"
+detection_database = "your/detections/file.csv"
+```
+
+
+2. Execute the script:
 
 ```bash
 python lets_go.py
