@@ -1,0 +1,3 @@
+# user paths
+tiff_directory = "database/"
+detection_database = "database/wdr_2019_DetectionTable.csv"

@@ -8,16 +8,27 @@ import warnings
 import time
 import glob
 import shutil
+import sys
+import toml
 
 # Suppress RuntimeWarnings
 warnings.filterwarnings('ignore', category=RuntimeWarning)
 
 # Global variables
+# Read the input.toml file
+with open('input.toml', 'r') as f:
+    config = toml.load(f)
+
+# Get the database_directory from the config
+tiff_directory = config.get('tiff_directory', 'database')
+detection_database = config.get('detection_database', 'database/wdr_2019_DetectionTable.csv')
 current_mode = 'label'  # can be 'add' or 'label'
 selected_detection = None
-new_detections = []
 selection_threshold = 500000   # Threshold distance for selecting a detection
 press_x, press_y = None, None  # Global variables for mouse press coordinates
+# Assuming your TIFF files are in the same directory
+tif_files = glob.glob(f'{tiff_directory}/**/*.tif',recursive=True)
+
 def backup_files(keep_last_n=5):
     global database
     # Create a backups directory if it doesn't exist
@@ -159,7 +170,7 @@ def draw_plot(image_name, df, src, fig, ax, reset=False):
     
     plt.draw()  # Redraw the plot
 
-database = 'database/wdr_2019_DetectionTable.csv'
+database = detection_database
 # Load the CSV file
 df = pd.read_csv(database)
 
@@ -177,10 +188,8 @@ boats_df = df[df['class'] != 'none']
 # New column for verification status
 df['verification'] = None
 
-# Assuming your TIFF files are in the same directory
-tif_files = glob.glob('C:\\phd\\fknms\\data\\wdr/**/*.tif',recursive=True)
-
 for i, image_path in enumerate(tif_files):
+    new_detections = []  # List to store new detections
     clear_console()  # Clear the console
     # Print all messages in the desired order
     print(f"{time.ctime()}")
@@ -265,3 +274,6 @@ for i, image_path in enumerate(tif_files):
 
 print("All images processed.")
 print("Exiting the program.")
+
+if __name__ == "__main__":
+    database_directory = sys.argv[1] if len(sys.argv) > 1 else 'database'
