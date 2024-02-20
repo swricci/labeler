@@ -172,7 +172,7 @@ press_x, press_y = None, None  # Global variables for mouse press coordinates
 tif_files = glob.glob(f'{tiff_directory}/**/*.tif',recursive=True)
 
 database_directory = sys.argv[1] if len(sys.argv) > 1 else 'database'
-fresh = True
+fresh = config.get('fresh', 'false')
 if fresh: 
     print("Fresh start")
     shutil.copy(f'{detection_database}.gold', f'{detection_database}')

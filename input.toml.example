@@ -1,3 +1,5 @@
+# config
+fresh = false # set true, if you want to start over for the paths below
 # user paths
 tiff_directory = "database/"
 detection_database = "database/wdr_2019_DetectionTable.csv"
