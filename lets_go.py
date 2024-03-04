@@ -37,7 +37,7 @@ def backup_files(keep_last_n=5, log=True):
     if os.path.exists(processed_file):
         shutil.copy(processed_file, processed_backup_path)
 
-    print("Files backed up successfully.")
+    print(f"Files backed up successfully: {db_backup_name} and {processed_backup_name}.")
         # Get a list of all backup files
     all_backups = sorted(os.listdir(backup_dir), key=lambda x: os.path.getmtime(os.path.join(backup_dir, x)))
     
@@ -57,6 +57,13 @@ def onpress(event):
     if event.xdata is not None and event.ydata is not None:
         press_x, press_y = event.xdata, event.ydata
 
+def update_plot(image_name, df, src, fig, ax, mode):
+    draw_plot(image_name, df, src, fig, ax)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_xlabel(f'{mode} mode')
+    plt.title(f'{image_name}', fontsize=10)
+
 # Function to handle mouse release events
 def onrelease(event, src, df, fig, ax):
     global current_mode, selected_detection, press_x, press_y
@@ -70,10 +77,15 @@ def onrelease(event, src, df, fig, ax):
     # Check if the mouse was clicked and released at the same position (or very close)
     if press_x is not None and release_x is not None and \
        abs(press_x - release_x) < 5 and abs(press_y - release_y) < 5:
-        if current_mode == 'add':
+        if current_mode == 'add_boat':
             # Adding new detection
-            new_detections.append({'chipName': image,'x': release_x, 'y': release_y, 'class': 'new_detection'})
-            ax.plot(release_x, release_y, 'go')  # green circle for new detections
+            new_detections.append({'chipName': image,'x': release_x, 'y': release_y, 'class': 'new_boat'})
+            ax.plot(release_x, release_y, 'yo')  # green circle for new detections
+            plt.draw()
+        elif current_mode == 'add_wake':
+            # Adding new detection
+            new_detections.append({'chipName': image,'x': release_x, 'y': release_y, 'class': 'new_wake'})
+            ax.plot(release_x, release_y, 'y+')  # green plus for new detections
             plt.draw()
         elif current_mode == 'label':
             # Labeling existing detection
@@ -106,32 +118,34 @@ def onkey(event, df, image_name, src, fig, ax):
         if current_mode != 'add':  # Only redraw if mode changes
             current_mode = 'add'
             print("Switched to ADD mode. Click to add new detections.")
-            draw_plot(image_name, df, src, fig, ax)
-            ax.set_xticks([])
-            ax.set_yticks([])
-            ax.set_xlabel(f'{current_mode} mode')
-            plt.title(f'{image_name}', fontsize=10)
+            update_plot(image_name, df, src, fig, ax, current_mode)
     elif event.key == 'l':
         if current_mode != 'label':  # Only redraw if mode changes
             current_mode = 'label'
             print("Switched to LABEL mode. Click to select a detection for labeling.")
-            draw_plot(image_name, df, src, fig, ax)
-            ax.set_xticks([])
-            ax.set_yticks([])
-            ax.set_xlabel(f'{current_mode} mode')
-            plt.title(f'{image_name}', fontsize=10)
+            update_plot(image_name, df, src, fig, ax, current_mode)
     elif event.key == 'r':
         print("Resetting the image with different colors for labeled detections.")
         draw_plot(image_name, df, src, fig, ax, reset=True)
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.set_xlabel(f'{current_mode} mode')
-        plt.title(f'{image_name}', fontsize=10)
+        update_plot(image_name, df, src, fig, ax, current_mode)
     elif current_mode == 'label' and selected_detection is not None:
         if event.key in ['m', 'b']:
             status = 'misclassified' if event.key == 'm' else 'bad'
             df.at[selected_detection, 'verification'] = status
             print(f"Labeled detection {selected_detection} as {status}")
+    elif current_mode in ['add', 'add_boat', 'add_wake']:
+        print("Click to add new detections in ADD mode.")
+        if event.key == '1':
+            if current_mode != 'add_boat':  # Only redraw if mode changes
+                current_mode = 'add_boat'
+                print("Adding BOATS!")
+                update_plot(image_name, df, src, fig, ax, current_mode)
+        elif event.key == 'w':
+            if current_mode != 'add_wake':
+                current_mode = 'add_wake'
+                print("Adding WAKES!")
+                update_plot(image_name, df, src, fig, ax, current_mode)
+
 
 # Function to draw the plot
 def draw_plot(image_name, df, src, fig, ax, reset=False):
@@ -152,7 +166,11 @@ def draw_plot(image_name, df, src, fig, ax, reset=False):
     
     # Plot new detections if not resetting
     for detection in new_detections:
-        plt.plot(detection['x'], detection['y'], 'go')  # green circle for new detections
+        if detection['class'] == 'new_boat':
+            plt.plot(detection['x'], detection['y'], 'yo')  # green circle for new detections
+        elif detection['class'] == 'new_wake':
+            plt.plot(detection['x'], detection['y'], 'y+')  # green circle for new detections
+        
     
     plt.draw()  # Redraw the plot
 
@@ -249,6 +267,8 @@ for i, image_path in enumerate(tif_files):
                      f'Wakes: {bcounts["boat_wake"]}\n\n')
         usage =     (f'r: Reset\n'
                      f'a: Add\n'
+                     f'- 1: Add boats\n'
+                     f'- w: Add wakes\n'
                      f'l: Label\n'
                      f'- m: miscls\n'
                      f'- b: bad\n'

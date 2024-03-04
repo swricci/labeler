@@ -60,7 +60,6 @@ tiff_directory = "your/database/path"
 detection_database = "your/detections/file.csv"
 ```
 
-
 2. Execute the script:
 
 ```bash
@@ -74,6 +73,8 @@ The following table outlines the key options available in the GUI:
 | Key | Function                    | Description                                       |
 | --- | --------------------------- | ------------------------------------------------- |
 | `a` | New Detection Addition Mode | Enter the mode to add new detections.             |
+|     | - `1`                       | Enter `add boat` mode                             |
+|     | - `w`                       | Enter `add wake` mode                             |
 | `l` | Labeling Mode               | Switch to labeling mode.                          |
 |     | - `m`                       | Label as misclassified.                           |
 |     | - `b`                       | Label as bad classification.                      |
@@ -83,6 +84,7 @@ The following table outlines the key options available in the GUI:
 ### Note
 
 - To enter a sub-mode in labeling mode, first press `l` then `m` or `b`.
+- To enter `add_boat` or `add_wake` modes, you must be in `add` mode already.
 - Press `r` to refresh if the screen appears frozen or does not update.
 
 ## Contributing
