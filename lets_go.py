@@ -155,23 +155,30 @@ def draw_plot(image_name, df, src, fig, ax, reset=False):
     # Place markers for existing detections
     for index, row in df[df['chipName'].str.startswith(image_name)].iterrows():
         if not pd.isna(row['x']) and not pd.isna(row['y']):
+            print(row)
             if row['verification'] == 'misclassified' or row['verification'] == 'bad':
                 marker_color = 'green' if row['verification'] == 'misclassified' else 'cyan' if row['verification'] == 'bad' else 'red'
                 marker_style = 'o'# if row['verification'] == 'misclassified' or row['verification'] == 'bad' else '+'
                 ax.plot(row['x'], row['y'], marker=marker_style, color=marker_color, markersize=15, markeredgewidth=1.5, fillstyle='none')
                 ax.plot(row['x'], row['y'], marker='*', color='black', markersize=10)
             else:
-                marker = 'ro' if row['class'] == 'boat' else 'b+'
+                if row['class'] == 'boat':
+                    marker = 'ro'
+                elif row['class'] == 'boat_wake':
+                    marker = 'b+'
+                elif row['class'] == 'new_wake':
+                    marker = 'y+'
+                elif row['class'] == 'new_boat':
+                    marker = 'yo'
                 ax.plot(row['x'], row['y'], marker, markersize=15, markeredgewidth=1.5, fillstyle='none')
-    
+            
     # Plot new detections if not resetting
     for detection in new_detections:
         if detection['class'] == 'new_boat':
-            plt.plot(detection['x'], detection['y'], 'yo')  # green circle for new detections
+            ax.plot(detection['x'], detection['y'], 'yo', markersize=15, markeredgewidth=1.5, fillstyle='none')  # green circle for new detections
         elif detection['class'] == 'new_wake':
-            plt.plot(detection['x'], detection['y'], 'y+')  # green circle for new detections
-        
-    
+            ax.plot(detection['x'], detection['y'], 'y+', markersize=15, markeredgewidth=1.5, fillstyle='none')  # green circle for new detections
+
     plt.draw()  # Redraw the plot
 
 # Global variables
@@ -251,10 +258,7 @@ for i, image_path in enumerate(tif_files):
         fig.canvas.mpl_connect('key_press_event', lambda event: onkey(event, df, image, src, fig, ax))
 
         # Place markers for existing detections
-        for index, row in df[df['chipName'].str.startswith(image)].iterrows():
-            if not pd.isna(row['x']) and not pd.isna(row['y']):
-                marker = 'ro' if row['class'] == 'boat' else 'b+'
-                ax.plot(row['x'], row['y'], marker, markersize=15, markeredgewidth=1.5, fillstyle='none')
+        update_plot(image, df, src, fig, ax, current_mode)
         
         bcounts = df[df["chipName"].str.startswith(image)]['class'].value_counts()
         # If 'boats' or 'boat_wake' are not present in the picture, assign their count as 0
