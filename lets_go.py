@@ -155,7 +155,6 @@ def draw_plot(image_name, df, src, fig, ax, reset=False):
     # Place markers for existing detections
     for index, row in df[df['chipName'].str.startswith(image_name)].iterrows():
         if not pd.isna(row['x']) and not pd.isna(row['y']):
-            print(row)
             if row['verification'] == 'misclassified' or row['verification'] == 'bad':
                 marker_color = 'green' if row['verification'] == 'misclassified' else 'cyan' if row['verification'] == 'bad' else 'red'
                 marker_style = 'o'# if row['verification'] == 'misclassified' or row['verification'] == 'bad' else '+'
