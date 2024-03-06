@@ -14,22 +14,7 @@ import toml
 # Suppress RuntimeWarnings
 warnings.filterwarnings('ignore', category=RuntimeWarning)
 
-# Global variables
-# Read the input.toml file
-with open('input.toml', 'r') as f:
-    config = toml.load(f)
-
-# Get the database_directory from the config
-tiff_directory = config.get('tiff_directory', 'database')
-detection_database = config.get('detection_database', 'database/wdr_2019_DetectionTable.csv')
-current_mode = 'label'  # can be 'add' or 'label'
-selected_detection = None
-selection_threshold = 500000   # Threshold distance for selecting a detection
-press_x, press_y = None, None  # Global variables for mouse press coordinates
-# Assuming your TIFF files are in the same directory
-tif_files = glob.glob(f'{tiff_directory}/**/*.tif',recursive=True)
-
-def backup_files(keep_last_n=5):
+def backup_files(keep_last_n=5, log=True):
     global database
     # Create a backups directory if it doesn't exist
     backup_dir = os.path.join(os.getcwd(), 'backups')
@@ -49,7 +34,8 @@ def backup_files(keep_last_n=5):
     processed_file = os.path.join(os.getcwd(), 'processed.csv')
     processed_backup_name = f'processed_{timestamp}.csv'
     processed_backup_path = os.path.join(backup_dir, processed_backup_name)
-    shutil.copy(processed_file, processed_backup_path)
+    if os.path.exists(processed_file):
+        shutil.copy(processed_file, processed_backup_path)
 
     print("Files backed up successfully.")
         # Get a list of all backup files
@@ -155,9 +141,9 @@ def draw_plot(image_name, df, src, fig, ax, reset=False):
     # Place markers for existing detections
     for index, row in df[df['chipName'].str.startswith(image_name)].iterrows():
         if not pd.isna(row['x']) and not pd.isna(row['y']):
-            if row['verification'] is not None:
-                marker_color = 'green' if row['verification'] == 'misclassified' else 'cyan' if row['verification'] == 'bad' else 'blue'
-                marker_style = 'o' if row['verification'] == 'misclassified' or row['verification'] == 'bad' else '+'
+            if row['verification'] == 'misclassified' or row['verification'] == 'bad':
+                marker_color = 'green' if row['verification'] == 'misclassified' else 'cyan' if row['verification'] == 'bad' else 'red'
+                marker_style = 'o'# if row['verification'] == 'misclassified' or row['verification'] == 'bad' else '+'
                 ax.plot(row['x'], row['y'], marker=marker_style, color=marker_color, markersize=15, markeredgewidth=1.5, fillstyle='none')
                 ax.plot(row['x'], row['y'], marker='*', color='black', markersize=10)
             else:
@@ -170,9 +156,39 @@ def draw_plot(image_name, df, src, fig, ax, reset=False):
     
     plt.draw()  # Redraw the plot
 
+# Global variables
+# Read the input.toml file
+with open('input.toml', 'r') as f:
+    config = toml.load(f)
+
+# Get the database_directory from the config
+tiff_directory = config.get('tiff_directory', 'database')
+detection_database = config.get('detection_database', 'database/wdr_2019_DetectionTable.csv')
+current_mode = 'label'  # can be 'add' or 'label'
+selected_detection = None
+selection_threshold = 500000   # Threshold distance for selecting a detection
+press_x, press_y = None, None  # Global variables for mouse press coordinates
+# Assuming your TIFF files are in the same directory
+tif_files = glob.glob(f'{tiff_directory}/**/*.tif',recursive=True)
+
+database_directory = sys.argv[1] if len(sys.argv) > 1 else 'database'
+fresh = config.get('fresh', 'false')
+if fresh: 
+    print("Fresh start")
+    shutil.copy(f'{detection_database}.gold', f'{detection_database}')
+    print(f'Copied {detection_database}.gold to {detection_database}')
+    if os.path.exists('processed.csv'):
+        os.remove('processed.csv')
+        print('Removed processed.csv')
+
+
 database = detection_database
 # Load the CSV file
 df = pd.read_csv(database)
+# Check if the 'verification' column exists in the dataframe
+if 'verification' not in df.columns:
+    # If the column doesn't exist, add it and initialize with None
+    df['verification'] = None
 
 # Load in file with images that have been processed
 if os.path.exists('processed.csv'):
@@ -182,11 +198,6 @@ if os.path.exists('processed.csv'):
 else:
     processed_images = []
 
-# Filter rows where class is not 'none'
-boats_df = df[df['class'] != 'none']
-
-# New column for verification status
-df['verification'] = None
 
 for i, image_path in enumerate(tif_files):
     new_detections = []  # List to store new detections
@@ -274,6 +285,3 @@ for i, image_path in enumerate(tif_files):
 
 print("All images processed.")
 print("Exiting the program.")
-
-if __name__ == "__main__":
-    database_directory = sys.argv[1] if len(sys.argv) > 1 else 'database'

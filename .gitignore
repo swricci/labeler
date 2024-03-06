@@ -1,6 +1,9 @@
+# IDEs
+.vscode
+
 # backup folder
 backups
 
 # user-specific files
-processed.csv
+**/*.csv
 input.toml
