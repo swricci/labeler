@@ -197,10 +197,12 @@ tif_files = sorted(glob.glob(f'{tiff_directory}/**/*.tif',recursive=True))
 
 database_directory = sys.argv[1] if len(sys.argv) > 1 else 'database'
 fresh = config.get('fresh', 'false')
-if fresh: 
+if fresh:
     print("Fresh start")
-    shutil.copy(f'{detection_database}.gold', f'{detection_database}')
-    print(f'Copied {detection_database}.gold to {detection_database}')
+    debug = False
+    if debug:
+        shutil.copy(f'{detection_database}.gold', f'{detection_database}')
+        print(f'Copied {detection_database}.gold to {detection_database}')
     if os.path.exists('processed.csv'):
         os.remove('processed.csv')
         print('Removed processed.csv')
