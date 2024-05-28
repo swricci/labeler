@@ -35,7 +35,7 @@ conda update conda
 3. Create a new conda environment using the provided `environment.yml` file:
 
 ```bash
-    conda env create -n labeler_env python=3.12
+    conda create -n labeler_env python=3.12
 ```
 
 4. Activate the environment:
