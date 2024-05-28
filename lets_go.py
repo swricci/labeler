@@ -193,7 +193,7 @@ selected_detection = None
 selection_threshold = 500000   # Threshold distance for selecting a detection
 press_x, press_y = None, None  # Global variables for mouse press coordinates
 # Assuming your TIFF files are in the same directory
-tif_files = glob.glob(f'{tiff_directory}/**/*.tif',recursive=True)
+tif_files = sorted(glob.glob(f'{tiff_directory}/**/*.tif',recursive=True))
 
 database_directory = sys.argv[1] if len(sys.argv) > 1 else 'database'
 fresh = config.get('fresh', 'false')
